@@ -52,3 +52,22 @@ OPC UA / MQTT
         +----> PostgreSQL Historian
         |
         +----> TwinCAT PLC Logic
+
+
+        
+## Current Status
+
+* [x] Proxmox VM stack created
+* [x] Static DHCP reservations configured in main OPNsense
+* [x] SSH access tested on Linux VMs
+* [x] NoMachine access configured for Windows TwinCAT VM
+* [x] Webots installed and launched on `webots-sim`
+* [x] PostgreSQL installed on `postgres-historian`
+* [x] `industrial_cell` database created
+* [x] Initial historian schema created
+* [ ] Ignition installed
+* [ ] Gateway OPC UA server created
+* [ ] Ignition connected to OPC UA gateway
+* [ ] Webots simulation connected to gateway
+* [ ] TwinCAT logic integrated
+* [ ] Historian logging connected to gateway

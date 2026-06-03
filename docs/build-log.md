@@ -30,3 +30,23 @@ The initial VM infrastructure for the virtual industrial automation cell has bee
 The project is currently in the software installation and integration phase.
 
 The next major milestone is to create a simple OPC UA server on the `gateway` VM and connect Ignition SCADA to it as an OPC UA client.
+
+
+## Gateway OPC UA Test Server
+
+A Python-based OPC UA test server has been created on the `gateway` VM.
+
+The server exposes simulated machine tags for the virtual industrial automation cell:
+
+- `MachineState`
+- `ConveyorRunning`
+- `ConveyorSpeed`
+- `EntrySensor`
+- `ExitSensor`
+- `PartCount`
+- `FaultActive`
+
+The server runs on:
+
+```text
+opc.tcp://192.168.1.187:4840/industrial-cell/server/
