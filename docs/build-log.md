@@ -50,3 +50,11 @@ The server runs on:
 
 ```text
 opc.tcp://192.168.1.187:4840/industrial-cell/server/
+## Ignition OPC UA Connection
+
+Ignition has been connected to the Python OPC UA test server running on the `gateway` VM.
+
+### OPC UA Endpoint
+
+```text
+opc.tcp://192.168.1.187:4840/industrial-cell/server/
