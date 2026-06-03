@@ -58,3 +58,50 @@ Ignition has been connected to the Python OPC UA test server running on the `gat
 
 ```text
 opc.tcp://192.168.1.187:4840/industrial-cell/server/
+## Ignition OPC UA Connection
+
+Ignition has been connected to the Python OPC UA test server running on the `gateway` VM.
+
+### OPC UA Endpoint
+
+```text
+opc.tcp://192.168.1.187:4840/industrial-cell/server/
+```
+
+### OPC UA Server Structure
+
+The Python OPC UA test server exposes machine simulation tags under:
+
+```text
+Objects
+└── Cell_01
+    ├── MachineState
+    ├── ConveyorRunning
+    ├── ConveyorSpeed
+    ├── EntrySensor
+    ├── ExitSensor
+    ├── FaultActive
+    └── PartCount
+```
+
+### Imported OPC Tags
+
+The following OPC UA tags are exposed under `Objects > Cell_01`:
+
+* `MachineState`
+* `ConveyorRunning`
+* `ConveyorSpeed`
+* `EntrySensor`
+* `ExitSensor`
+* `FaultActive`
+* `PartCount`
+
+`PartCount` was successfully imported into the Ignition default tag provider and confirmed updating live.
+
+### Current Integration Status
+
+```text
+gateway OPC UA server → Ignition OPC UA client → live Ignition tag
+```
+
+This confirms that the first industrial communication path between the gateway layer and SCADA layer is working.
