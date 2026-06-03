@@ -1,0 +1,46 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.env
+
+# Logs
+*.log
+logs/
+
+# Ignition exports/backups
+*.gwbk
+*.projbak
+
+# Large simulation/generated files
+*.mp4
+*.avi
+*.bag
+*.db
+*.sqlite
+
+# TwinCAT / Visual Studio build files
+*.suo
+*.user
+*.cache
+*.tlog
+*.obj
+*.pdb
+*.ilk
+*.exe
+*.dll
+bin/
+obj/
+.vs/
+
+# Proxmox/backups
+*.vma
+*.vma.zst
+*.qcow2
+*.raw
