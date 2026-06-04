@@ -105,3 +105,68 @@ gateway OPC UA server → Ignition OPC UA client → live Ignition tag
 ```
 
 This confirms that the first industrial communication path between the gateway layer and SCADA layer is working.
+
+
+## Ignition Perspective Dashboard
+
+A basic Ignition Perspective dashboard has been created for the virtual industrial automation cell.
+
+The dashboard displays live OPC UA values from the `gateway` VM.
+
+### Live Dashboard Values
+
+- `MachineState`
+- `PartCount`
+- `ConveyorSpeed`
+- `ConveyorRunning`
+- `EntrySensor`
+- `ExitSensor`
+- `FaultActive`
+
+### Integration Path
+
+```text
+Python OPC UA test server
+        ↓
+Ignition OPC UA connection
+        ↓
+Ignition tag provider
+        ↓
+Perspective dashboard
+## Ignition Perspective Dashboard
+
+A basic Ignition Perspective dashboard has been created for the virtual industrial automation cell.
+
+The dashboard displays live OPC UA values from the `gateway` VM and converts raw boolean values into operator-friendly text.
+
+### Displayed Values
+
+- `MachineState`
+- `PartCount`
+- `ConveyorSpeed`
+- `ConveyorRunning`
+- `EntrySensor`
+- `ExitSensor`
+- `FaultActive`
+
+### Operator-Friendly Display
+
+Boolean values are displayed as readable status text:
+
+| Tag | False State | True State |
+|---|---|---|
+| `ConveyorRunning` | `Stopped` | `Running` |
+| `EntrySensor` | `Clear` | `Detected` |
+| `ExitSensor` | `Clear` | `Detected` |
+| `FaultActive` | `Normal` | `Fault` |
+
+### Integration Path
+
+```text
+Python OPC UA test server
+        ↓
+Ignition OPC UA connection
+        ↓
+Ignition tag provider
+        ↓
+Perspective dashboard
