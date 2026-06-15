@@ -52,9 +52,8 @@ OPC UA / MQTT
         +----> PostgreSQL Historian
         |
         +----> TwinCAT PLC Logic
+```
 
-
-        
 ## Current Status
 
 * [x] Proxmox VM stack created
@@ -65,9 +64,10 @@ OPC UA / MQTT
 * [x] PostgreSQL installed on `postgres-historian`
 * [x] `industrial_cell` database created
 * [x] Initial historian schema created
-* [ ] Ignition installed
-* [ ] Gateway OPC UA server created
-* [ ] Ignition connected to OPC UA gateway
+* [x] Ignition installed
+* [x] Gateway OPC UA server created
+* [x] Ignition connected to OPC UA gateway
+* [x] First Perspective dashboard live with all tags
 * [ ] Webots simulation connected to gateway
 * [ ] TwinCAT logic integrated
 * [ ] Historian logging connected to gateway
