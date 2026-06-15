@@ -50,14 +50,8 @@ The server runs on:
 
 ```text
 opc.tcp://192.168.1.187:4840/industrial-cell/server/
-## Ignition OPC UA Connection
+```
 
-Ignition has been connected to the Python OPC UA test server running on the `gateway` VM.
-
-### OPC UA Endpoint
-
-```text
-opc.tcp://192.168.1.187:4840/industrial-cell/server/
 ## Ignition OPC UA Connection
 
 Ignition has been connected to the Python OPC UA test server running on the `gateway` VM.
@@ -111,32 +105,6 @@ This confirms that the first industrial communication path between the gateway l
 
 A basic Ignition Perspective dashboard has been created for the virtual industrial automation cell.
 
-The dashboard displays live OPC UA values from the `gateway` VM.
-
-### Live Dashboard Values
-
-- `MachineState`
-- `PartCount`
-- `ConveyorSpeed`
-- `ConveyorRunning`
-- `EntrySensor`
-- `ExitSensor`
-- `FaultActive`
-
-### Integration Path
-
-```text
-Python OPC UA test server
-        ↓
-Ignition OPC UA connection
-        ↓
-Ignition tag provider
-        ↓
-Perspective dashboard
-## Ignition Perspective Dashboard
-
-A basic Ignition Perspective dashboard has been created for the virtual industrial automation cell.
-
 The dashboard displays live OPC UA values from the `gateway` VM and converts raw boolean values into operator-friendly text.
 
 ### Displayed Values
@@ -170,3 +138,4 @@ Ignition OPC UA connection
 Ignition tag provider
         ↓
 Perspective dashboard
+```
