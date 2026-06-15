@@ -1,0 +1,231 @@
+#VRML_SIM R2023b utf8
+
+WorldInfo {
+  info [
+    "Virtual Industrial Automation Cell - Conveyor Cell MVP"
+    "Supervisor-driven part movement. TCP gateway interface on port 9000."
+  ]
+  title "Conveyor Cell"
+  coordinateSystem "NUE"
+}
+
+Viewpoint {
+  fieldOfView 0.8
+  orientation 1 0 0 -0.52
+  position 0 2.2 3.8
+}
+
+Background {
+  skyColor [
+    0.12 0.12 0.15
+  ]
+}
+
+DirectionalLight {
+  ambientIntensity 0.5
+  direction 0.3 -1.0 -0.5
+  intensity 0.9
+}
+
+# Floor
+Solid {
+  translation 0 -0.005 0
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.22 0.22 0.24
+        roughness 0.95
+      }
+      geometry Box {
+        size 4.0 0.01 2.0
+      }
+    }
+  ]
+  name "floor"
+  boundingObject Box {
+    size 4.0 0.01 2.0
+  }
+}
+
+# Conveyor table — 2 m long, 0.3 m wide, 0.05 m tall
+# Part travels along the X axis: entry x=-0.6, station x=0.0, exit x=0.6
+DEF CONVEYOR_TABLE Solid {
+  translation 0 -0.025 0
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.45 0.46 0.5
+        metalness 0.4
+        roughness 0.6
+      }
+      geometry Box {
+        size 2.0 0.05 0.3
+      }
+    }
+  ]
+  name "conveyor_table"
+  boundingObject Box {
+    size 2.0 0.05 0.3
+  }
+}
+
+# Left end stop
+Solid {
+  translation -1.02 0.04 0
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.35 0.35 0.38
+        metalness 0.5
+      }
+      geometry Box {
+        size 0.04 0.08 0.3
+      }
+    }
+  ]
+  name "left_stop"
+  boundingObject Box {
+    size 0.04 0.08 0.3
+  }
+}
+
+# Right end stop
+Solid {
+  translation 1.02 0.04 0
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.35 0.35 0.38
+        metalness 0.5
+      }
+      geometry Box {
+        size 0.04 0.08 0.3
+      }
+    }
+  ]
+  name "right_stop"
+  boundingObject Box {
+    size 0.04 0.08 0.3
+  }
+}
+
+# Entry sensor marker (blue, x = -0.6)
+Solid {
+  translation -0.6 0.1 0.18
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.15 0.25 0.85
+        roughness 0.3
+      }
+      geometry Cylinder {
+        height 0.04
+        radius 0.015
+      }
+    }
+  ]
+  name "entry_sensor_marker"
+}
+
+# Station sensor marker (green, x = 0.0)
+Solid {
+  translation 0 0.1 0.18
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.1 0.72 0.15
+        roughness 0.3
+      }
+      geometry Cylinder {
+        height 0.04
+        radius 0.015
+      }
+    }
+  ]
+  name "station_sensor_marker"
+}
+
+# Exit sensor marker (red, x = 0.6)
+Solid {
+  translation 0.6 0.1 0.18
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.85 0.12 0.1
+        roughness 0.3
+      }
+      geometry Cylinder {
+        height 0.04
+        radius 0.015
+      }
+    }
+  ]
+  name "exit_sensor_marker"
+}
+
+# Pusher housing (fixed, behind the station in -Z direction)
+Solid {
+  translation 0 0.05 -0.2
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.55 0.3 0.1
+        metalness 0.6
+        roughness 0.4
+      }
+      geometry Box {
+        size 0.14 0.1 0.06
+      }
+    }
+  ]
+  name "pusher_housing"
+  boundingObject Box {
+    size 0.14 0.1 0.06
+  }
+}
+
+# Pusher arm — supervisor moves this along Z axis
+# Retracted: z = -0.15   Extended: z = 0.05
+DEF PUSHER Solid {
+  translation 0 0.05 -0.15
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.78 0.2 0.1
+        metalness 0.7
+        roughness 0.3
+      }
+      geometry Box {
+        size 0.1 0.08 0.1
+      }
+    }
+  ]
+  name "pusher"
+}
+
+# Part — supervisor moves this along X axis
+# Start: x = -0.8   Entry sensor: x = -0.6   Station: x = 0.0
+# Exit sensor: x = 0.6   End: x = 0.85
+DEF PART Solid {
+  translation -0.8 0.075 0
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1.0 0.55 0.0
+        roughness 0.5
+        metalness 0.1
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "part"
+}
+
+# Supervisor robot — no physical body, pure control
+Robot {
+  name "cell_supervisor"
+  supervisor TRUE
+  controller "cell_supervisor"
+}
