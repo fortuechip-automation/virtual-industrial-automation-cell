@@ -207,3 +207,21 @@ Keep the first target simple:
 
 This gives the project a realistic automation stack without mixing
 responsibilities.
+
+## Current Phase 2 Boundary
+
+The Webots controller now has an explicit mode boundary:
+
+```text
+WEBOTS_CELL_MODE=demo
+WEBOTS_CELL_MODE=plc
+```
+
+In `demo` mode, Webots keeps the known-good behaviour: the conveyor runs,
+cartons are automatically reloaded, and local counting is available for
+simulation verification.
+
+In `plc` mode, Webots stops making production decisions. It still reports
+physical sensor state and publishes machine state, but the conveyor remains
+stopped until an external I/O protocol is added. This is the staging point for
+the next phase: Modbus TCP simulated I/O.

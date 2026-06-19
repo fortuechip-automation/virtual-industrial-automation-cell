@@ -8,12 +8,17 @@ operation. Sensor tags come from Webots DistanceSensor devices.
 from __future__ import annotations
 
 import json
+import os
 import socket
 from typing import Any
 
 from controller import Supervisor
 
 
+CONTROL_MODE_ENV = "WEBOTS_CELL_MODE"
+CONTROL_MODE_DEMO = "demo"
+CONTROL_MODE_PLC = "plc"
+VALID_CONTROL_MODES = {CONTROL_MODE_DEMO, CONTROL_MODE_PLC}
 TCP_HOST = "0.0.0.0"
 TCP_PORT = 9000
 PUBLISH_PERIOD_MS = 100
@@ -22,6 +27,18 @@ PHOTOEYE_BLOCKED_THRESHOLD = 450.0
 OUTFEED_RECYCLE_DELAY_MS = 1500
 CARTON_HOME = [1.38, 0.0, 0.34]
 CARTON_HOME_ROTATION = [0.0, 0.0, 1.0, 0.0]
+
+
+def configured_control_mode() -> str:
+    mode = os.environ.get(CONTROL_MODE_ENV, CONTROL_MODE_DEMO).strip().lower()
+    if mode in VALID_CONTROL_MODES:
+        return mode
+    print(
+        f"[Webots] Unknown {CONTROL_MODE_ENV}={mode!r}; "
+        f"falling back to {CONTROL_MODE_DEMO!r}",
+        flush=True,
+    )
+    return CONTROL_MODE_DEMO
 
 
 class TcpPublisher:
@@ -67,6 +84,9 @@ class IndustrialCellSupervisor:
     def __init__(self) -> None:
         self.robot = Supervisor()
         self.timestep_ms = int(self.robot.getBasicTimeStep())
+        self.control_mode = configured_control_mode()
+        self.demo_mode = self.control_mode == CONTROL_MODE_DEMO
+        self.plc_mode = self.control_mode == CONTROL_MODE_PLC
         self.keyboard = self.robot.getKeyboard()
         self.keyboard.enable(self.timestep_ms)
 
@@ -85,7 +105,9 @@ class IndustrialCellSupervisor:
         self.carton_rotation = self.carton.getField("rotation")
         self.publisher = TcpPublisher(TCP_HOST, TCP_PORT)
 
-        self.running = True
+        self.running = self.demo_mode
+        self.plc_conveyor_run_cmd = False
+        self.plc_conveyor_speed_cmd = BELT_SPEED_MPS
         self.fault_active = False
         self.fault_code = ""
         self.part_count = 0
@@ -93,12 +115,14 @@ class IndustrialCellSupervisor:
         self.belt_position = 0.0
         self.recycle_accumulator_ms = 0
         self.publish_accumulator_ms = 0
-        self.last_snapshot: tuple[bool, bool, bool, int, bool] | None = None
+        self.last_snapshot: tuple[Any, ...] | None = None
 
         self.belt_motor.setPosition(self.belt_position)
         self._home_carton()
-        print("[Webots] Physics conveyor ready", flush=True)
+        print(f"[Webots] Physics conveyor ready in {self.control_mode.upper()} mode", flush=True)
         print("[Webots] Keys: S=start T=stop R=reset F=fault", flush=True)
+        if self.plc_mode:
+            print("[Webots] PLC mode waits for external I/O commands", flush=True)
 
     def run(self) -> None:
         while self.robot.step(self.timestep_ms) != -1:
@@ -128,20 +152,20 @@ class IndustrialCellSupervisor:
 
     def _drive_belt(self) -> None:
         dt_s = self.timestep_ms / 1000.0
-        if self.running and not self.fault_active:
-            self.belt_position -= BELT_SPEED_MPS * dt_s
+        if self._conveyor_commanded():
+            self.belt_position -= self._commanded_belt_speed() * dt_s
         self.belt_motor.setPosition(self.belt_position)
 
     def _update_count(self) -> None:
         exit_blocked = self._blocked(self.exit_sensor)
-        if exit_blocked and not self.exit_latched:
+        if self.demo_mode and exit_blocked and not self.exit_latched:
             self.part_count += 1
             self.exit_latched = True
         elif not exit_blocked:
             self.exit_latched = False
 
         carton_x = self.carton_translation.getSFVec3f()[0]
-        if self.running and not exit_blocked and carton_x < -1.48:
+        if self.demo_mode and self.running and not exit_blocked and carton_x < -1.48:
             self.recycle_accumulator_ms += self.timestep_ms
             if self.recycle_accumulator_ms >= OUTFEED_RECYCLE_DELAY_MS:
                 self._home_carton()
@@ -154,13 +178,21 @@ class IndustrialCellSupervisor:
         entry = self._blocked(self.entry_sensor)
         station = self._blocked(self.station_sensor)
         exit_ = self._blocked(self.exit_sensor)
-        snapshot = (entry, station, exit_, self.part_count, self.running)
+        snapshot = (
+            entry,
+            station,
+            exit_,
+            self.part_count,
+            self._conveyor_commanded(),
+            self.control_mode,
+        )
         if snapshot == self.last_snapshot:
             return
         self.last_snapshot = snapshot
         print(
             "[I/O] "
-            f"Run={self.running} "
+            f"Mode={self.control_mode.upper()} "
+            f"Run={self._conveyor_commanded()} "
             f"Entry={entry}({self.entry_sensor.getValue():.0f}) "
             f"Station={station}({self.station_sensor.getValue():.0f}) "
             f"Exit={exit_}({self.exit_sensor.getValue():.0f}) "
@@ -183,19 +215,36 @@ class IndustrialCellSupervisor:
         self.recycle_accumulator_ms = 0
         self.part_count = 0
         self._home_carton()
-        print("[Webots] Reset complete; press S to run", flush=True)
+        if self.demo_mode:
+            print("[Webots] Reset complete; press S to run", flush=True)
+        else:
+            print("[Webots] Reset complete; waiting for PLC run command", flush=True)
 
     def _home_carton(self) -> None:
         self.carton_translation.setSFVec3f(CARTON_HOME)
         self.carton_rotation.setSFRotation(CARTON_HOME_ROTATION)
         self.carton.resetPhysics()
 
+    def _conveyor_commanded(self) -> bool:
+        if self.fault_active:
+            return False
+        if self.demo_mode:
+            return self.running
+        return self.plc_conveyor_run_cmd
+
+    def _commanded_belt_speed(self) -> float:
+        if self.demo_mode:
+            return BELT_SPEED_MPS
+        return self.plc_conveyor_speed_cmd
+
     def tags(self) -> dict[str, Any]:
         carton_position = self.carton_translation.getSFVec3f()
+        conveyor_running = self._conveyor_commanded()
         return {
-            "machine_state": "RUNNING" if self.running else "IDLE",
-            "conveyor_running": self.running and not self.fault_active,
-            "conveyor_speed": BELT_SPEED_MPS if self.running and not self.fault_active else 0.0,
+            "control_mode": self.control_mode,
+            "machine_state": "RUNNING" if conveyor_running else "IDLE",
+            "conveyor_running": conveyor_running,
+            "conveyor_speed": self._commanded_belt_speed() if conveyor_running else 0.0,
             "entry_sensor": self._blocked(self.entry_sensor),
             "station_sensor": self._blocked(self.station_sensor),
             "exit_sensor": self._blocked(self.exit_sensor),

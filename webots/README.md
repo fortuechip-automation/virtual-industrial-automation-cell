@@ -13,8 +13,13 @@ The MVP is physics-first:
 - entry, station, and exit photoeyes are Webots `DistanceSensor` devices
 - the supervisor does not move the carton during normal operation
 
-The current controller runs in demo mode so the physics cell can be checked
-without a PLC connected. The intended control architecture is:
+The controller supports two control modes:
+
+- `demo` - local Webots demo mode. The conveyor auto-runs and reloads cartons.
+- `plc` - PLC boundary mode. Webots waits for external I/O commands and does
+  not make production sequencing decisions.
+
+The intended control architecture is:
 
 ```text
 TwinCAT PLC VM <-> simulated I/O protocol <-> Webots physics plant VM
@@ -36,7 +41,7 @@ The supervisor is currently still used for:
 - `worlds/industrial_cell_mvp.wbt` - physical conveyor, carton, rails, stops, and photoeyes.
 - `controllers/industrial_cell_supervisor/industrial_cell_supervisor.py` - belt motor control, sensor reads, reset, and TCP publisher.
 
-## Run
+## Run In Demo Mode
 
 Open this world on the `webots-sim` VM:
 
@@ -50,6 +55,29 @@ With the Webots window focused:
 - `T` stops the conveyor.
 - `R` resets the carton and clears faults.
 - `F` triggers a manual fault.
+
+The default mode is `demo`, so this is equivalent to:
+
+```bash
+WEBOTS_CELL_MODE=demo webots webots/worlds/industrial_cell_mvp.wbt
+```
+
+## Run In PLC Mode
+
+PLC mode keeps the physical simulation alive but stops Webots from owning the
+machine sequence.
+
+```bash
+WEBOTS_CELL_MODE=plc webots webots/worlds/industrial_cell_mvp.wbt
+```
+
+Current PLC mode behaviour:
+
+- photoeyes still report real Webots `DistanceSensor` states
+- the carton still has physical `Solid` / `Physics` behaviour
+- the TCP publisher still exposes state on port `9000`
+- the conveyor remains stopped until future external I/O commands are added
+- demo-only auto counting and auto reload are disabled
 
 ## Gateway Integration
 
