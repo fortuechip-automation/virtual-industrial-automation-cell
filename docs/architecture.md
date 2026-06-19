@@ -57,6 +57,10 @@ Python / OPC UA / MQTT
 
 ## Architecture Layers
 
+For the control responsibility model between Webots, TwinCAT, Ignition,
+gateway services, and the historian, see
+[`control-architecture.md`](control-architecture.md).
+
 ### 1. Simulation Layer
 
 The `webots-sim` VM provides the virtual plant. It will simulate a manufacturing automation cell with objects such as conveyors, sensors, actuators, machine states, and faults.
