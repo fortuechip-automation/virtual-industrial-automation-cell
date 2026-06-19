@@ -139,3 +139,46 @@ Ignition tag provider
         ↓
 Perspective dashboard
 ```
+
+
+## Physics-First Webots MVP
+
+A fresh Webots MVP has been added under `webots/` and should be treated as the
+active simulation source.
+
+### Added Files
+
+* `webots/worlds/industrial_cell_mvp.wbt`
+* `webots/controllers/industrial_cell_supervisor/industrial_cell_supervisor.py`
+* `webots/README.md`
+
+### Simulation Behaviour
+
+The MVP includes:
+
+* Webots `Track` conveyor driven by a `LinearMotor`
+* Physical carton `Solid` with `boundingObject` and `Physics`
+* Belt/carton friction configured with `ContactProperties`
+* Entry, station, and exit `DistanceSensor` photoeyes
+* TCP state publishing on port `9000`
+* Manual keyboard controls for start, stop, reset, and fault injection
+
+The supervisor no longer moves the carton during normal operation. It drives the
+belt motor and reads physical sensor devices. Reset still uses supervisor access
+to place the carton back at the infeed.
+
+### Gateway Interface
+
+The Webots supervisor listens on TCP port `9000` and publishes newline-delimited
+JSON about every 100 ms. This matches the gateway bridge in
+`src/gateway/opcua_server.py`.
+
+Current intended runtime path:
+
+```text
+Webots supervisor 192.168.1.182:9000
+        ↓
+Gateway OPC UA server 192.168.1.187:4840
+        ↓
+Ignition Perspective dashboard
+```

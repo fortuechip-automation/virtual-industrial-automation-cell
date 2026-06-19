@@ -68,6 +68,7 @@ OPC UA / MQTT
 * [x] Gateway OPC UA server created
 * [x] Ignition connected to OPC UA gateway
 * [x] First Perspective dashboard live with all tags
+* [x] Physics-first Webots conveyor MVP created with TCP publishing on port 9000
 * [ ] Webots simulation connected to gateway
 * [ ] TwinCAT logic integrated
 * [ ] Historian logging connected to gateway

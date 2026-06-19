@@ -1,0 +1,279 @@
+#VRML_SIM R2025a utf8
+
+WorldInfo {
+  title "Industrial Cell MVP - Physics Conveyor"
+  basicTimeStep 16
+  contactProperties [
+    ContactProperties {
+      material1 "rubber_belt"
+      material2 "carton"
+      coulombFriction [
+        1.4
+      ]
+      bounce 0
+    }
+    ContactProperties {
+      material1 "steel_rail"
+      material2 "carton"
+      coulombFriction [
+        0.35
+      ]
+      bounce 0
+    }
+  ]
+}
+
+Viewpoint {
+  orientation 0.346519 0.853025 0.390258 1.24181
+  position 0 -4.25 2.35
+}
+
+Background {
+  skyColor [
+    0.12 0.13 0.15
+  ]
+}
+DirectionalLight {
+  ambientIntensity 0.55
+  direction 0.3 -1 -0.6
+  intensity 0.85
+}
+
+Solid {
+  translation 0 0 -0.006
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.26 0.27 0.28
+        roughness 0.95
+      }
+      geometry Box {
+        size 5 3 0.012
+      }
+    }
+  ]
+  name "floor"
+  boundingObject Box {
+    size 5 3 0.012
+  }
+}
+
+DEF CELL_CONTROLLER Robot {
+  translation 0 0 0.1
+  children [
+    Shape {
+      appearance DEF FRAME_APPEARANCE PBRAppearance {
+        baseColor 0.22 0.24 0.26
+        roughness 0.55
+        metalness 0.15
+      }
+      geometry DEF FRAME_GEOMETRY Box {
+        size 3.4 0.66 0.2
+      }
+    }
+    Track {
+      translation 0 0 0.106
+      contactMaterial "rubber_belt"
+      children [
+        DEF BELT Shape {
+          appearance PBRAppearance {
+            baseColor 0.035 0.04 0.045
+            roughness 1
+            metalness 0
+            textureTransform TextureTransform {
+              scale 28 2
+            }
+          }
+          geometry Box {
+            size 3 0.42 0.006
+          }
+        }
+      ]
+      boundingObject USE BELT
+      physics Physics {
+        density -1
+        mass 18
+      }
+      device [
+        LinearMotor {
+          name "belt_motor"
+          maxVelocity 3
+        }
+      ]
+      textureAnimation 1.8 0
+    }
+    Pose {
+      translation 0 0.35 0.22
+      children [
+        Shape {
+          appearance USE FRAME_APPEARANCE
+          geometry Box {
+            size 3.3 0.045 0.16
+          }
+        }
+      ]
+    }
+    Pose {
+      translation 0 -0.35 0.22
+      children [
+        Shape {
+          appearance USE FRAME_APPEARANCE
+          geometry Box {
+            size 3.3 0.045 0.16
+          }
+        }
+      ]
+    }
+    DEF PE_ENTRY DistanceSensor {
+      translation 1.05 -0.28 0.25
+      rotation 0 0 1 1.5708
+      name "pe_entry"
+      type "infra-red"
+      aperture 0.08
+      lookupTable [
+        0 1000 0
+        0.75 0 0
+      ]
+    }
+    DEF PE_STATION DistanceSensor {
+      translation 0 -0.28 0.25
+      rotation 0 0 1 1.5708
+      name "pe_station"
+      type "infra-red"
+      aperture 0.08
+      lookupTable [
+        0 1000 0
+        0.75 0 0
+      ]
+    }
+    DEF PE_EXIT DistanceSensor {
+      translation -1.05 -0.28 0.25
+      rotation 0 0 1 1.5708
+      name "pe_exit"
+      type "infra-red"
+      aperture 0.08
+      lookupTable [
+        0 1000 0
+        0.75 0 0
+      ]
+    }
+    Pose {
+      translation 1.05 -0.42 0.15
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0.1 0.42 0.9
+            emissiveColor 0.02 0.08 0.18
+            roughness 0.4
+          }
+          geometry Box {
+            size 0.06 0.06 0.3
+          }
+        }
+      ]
+    }
+    Pose {
+      translation 0 -0.42 0.15
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0.95 0.68 0.12
+            emissiveColor 0.18 0.1 0.02
+            roughness 0.4
+          }
+          geometry Box {
+            size 0.06 0.06 0.3
+          }
+        }
+      ]
+    }
+    Pose {
+      translation -1.05 -0.42 0.15
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0.1 0.65 0.26
+            emissiveColor 0.02 0.13 0.04
+            roughness 0.4
+          }
+          geometry Box {
+            size 0.06 0.06 0.3
+          }
+        }
+      ]
+    }
+  ]
+  name "industrial_cell_supervisor"
+  boundingObject USE FRAME_GEOMETRY
+  physics Physics {
+    density -1
+    mass 80
+  }
+  controller "industrial_cell_supervisor"
+  supervisor TRUE
+}
+
+DEF CARTON Solid {
+  translation 1.38 0 0.34
+  contactMaterial "carton"
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.78 0.44 0.18
+        roughness 0.82
+        metalness 0
+      }
+      geometry DEF CARTON_BOX Box {
+        size 0.26 0.24 0.22
+      }
+    }
+  ]
+  name "carton"
+  boundingObject USE CARTON_BOX
+  physics Physics {
+    density -1
+    mass 0.22
+  }
+}
+
+Solid {
+  translation 1.68 0 0.35
+  contactMaterial "steel_rail"
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.36 0.37 0.39
+        roughness 0.5
+        metalness 0.25
+      }
+      geometry Box {
+        size 0.05 0.58 0.3
+      }
+    }
+  ]
+  name "infeed_stop"
+  boundingObject Box {
+    size 0.05 0.58 0.3
+  }
+}
+
+Solid {
+  translation -1.68 0 0.35
+  contactMaterial "steel_rail"
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.36 0.37 0.39
+        roughness 0.5
+        metalness 0.25
+      }
+      geometry Box {
+        size 0.05 0.58 0.3
+      }
+    }
+  ]
+  name "exit_stop"
+  boundingObject Box {
+    size 0.05 0.58 0.3
+  }
+}
