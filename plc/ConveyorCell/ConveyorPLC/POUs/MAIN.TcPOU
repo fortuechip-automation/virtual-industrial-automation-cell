@@ -16,7 +16,10 @@ tBlink(IN := NOT tBlink.Q, PT := T#500MS);
 
 IF tBlink.Q THEN
 	bLight := NOT bLight;
-END_IF]]></ST>
+END_IF
+
+GVL_ModbusIO.mwActuators.0 := bLight;
+GVL.mb_Output_Registers[0].0 := bLight;]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>

@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <GVL Name="GVL_ModbusIO" Id="{8d2477c8-d054-4dab-9281-0424af5e71b2}">
+    <Declaration><![CDATA[// Modbus I/O boundary - TF6250 maps holding register 32768+n to %MB(2n){attribute 'qualified_only'}
+VAR_GLOBAL
+	mwSensors   AT %MB0 : WORD; //Webots write: bit0 = entry eye, bit1 = exit eye
+	mwActuators AT %MB2 : WORD; //PLC writes:   bit0 = conveyor run
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>
