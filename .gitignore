@@ -44,3 +44,12 @@ obj/
 *.vma.zst
 *.qcow2
 *.raw
+
+#TwinCAT build artifacts and IDE clutter
+_Boot/
+_CompileInfo/
+_Libraries/
+.vs/
+*.suo
+*.user
+LineIDs.dbg

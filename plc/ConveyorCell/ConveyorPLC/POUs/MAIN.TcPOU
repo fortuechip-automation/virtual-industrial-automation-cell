@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="MAIN" Id="{055f7781-fa15-44cb-9bbe-9f4c327b774f}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	nCount : UDINT;
+	tBlink :TON;       // timer instance -it has its own memory
+	bLight : BOOL;     // the output that will blink
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[nCount := nCount + 1;
+
+// run the timer; when it expires, toggle the light and restart
+tBlink(IN := NOT tBlink.Q, PT := T#500MS);
+
+IF tBlink.Q THEN
+	bLight := NOT bLight;
+END_IF]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>
