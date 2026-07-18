@@ -53,3 +53,6 @@ _Libraries/
 *.suo
 *.user
 LineIDs.dbg
+*.bak
+*.tclrs
+*.~u
