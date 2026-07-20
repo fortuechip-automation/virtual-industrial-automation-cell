@@ -22,6 +22,10 @@ VALID_CONTROL_MODES = {CONTROL_MODE_DEMO, CONTROL_MODE_PLC}
 TCP_HOST = "0.0.0.0"
 TCP_PORT = 9000
 PUBLISH_PERIOD_MS = 100
+PLC_HOST_ENV = "WEBOTS_PLC_HOST"
+PLC_HOST_DEFAULT = "192.168.1.181"
+PLC_POLL_PERIOD_MS = 100
+MB_REG_CONVEYOR_RUN_CMD = 32768  # TF6250 map: GVL.mb_Output_Registers[0]
 BELT_SPEED_MPS = 0.24
 PHOTOEYE_BLOCKED_THRESHOLD = 450.0
 OUTFEED_RECYCLE_DELAY_MS = 1500
@@ -80,6 +84,44 @@ class TcpPublisher:
             print(f"[Webots] Gateway connected from {addr[0]}:{addr[1]}", flush=True)
 
 
+class PlcIoClient:
+    """Modbus TCP link to the TwinCAT PLC.
+
+    Fail-safe by design: any read problem (no connection, Modbus exception,
+    timeout) is reported as None, and the caller must treat None as STOP.
+    """
+
+    def __init__(self, host: str) -> None:
+        # Imported here, not at module top, so demo mode still runs on a
+        # machine without pymodbus installed.
+        from pymodbus.client import ModbusTcpClient
+
+        self.host = host
+        self.client = ModbusTcpClient(host, timeout=0.2)
+        self.link_up = False
+
+    def read_run_command(self) -> bool | None:
+        try:
+            response = self.client.read_holding_registers(
+                MB_REG_CONVEYOR_RUN_CMD, count=1
+            )
+            if response.isError():
+                self._report_link(False)
+                return None
+        except OSError:
+            self._report_link(False)
+            return None
+        self._report_link(True)
+        return response.registers[0] != 0
+
+    def _report_link(self, up: bool) -> None:
+        if up == self.link_up:
+            return
+        self.link_up = up
+        state = "UP" if up else "DOWN (fail-safe stop)"
+        print(f"[Webots] PLC Modbus link to {self.host}: {state}", flush=True)
+
+
 class IndustrialCellSupervisor:
     def __init__(self) -> None:
         self.robot = Supervisor()
@@ -115,7 +157,12 @@ class IndustrialCellSupervisor:
         self.belt_position = 0.0
         self.recycle_accumulator_ms = 0
         self.publish_accumulator_ms = 0
+        self.plc_poll_accumulator_ms = 0
         self.last_snapshot: tuple[Any, ...] | None = None
+        self.plc_io: PlcIoClient | None = None
+        if self.plc_mode:
+            plc_host = os.environ.get(PLC_HOST_ENV, PLC_HOST_DEFAULT)
+            self.plc_io = PlcIoClient(plc_host)
 
         self.belt_motor.setPosition(self.belt_position)
         self._home_carton()
@@ -127,6 +174,7 @@ class IndustrialCellSupervisor:
     def run(self) -> None:
         while self.robot.step(self.timestep_ms) != -1:
             self._handle_keyboard()
+            self._poll_plc()
             self._drive_belt()
             self._update_count()
             self._print_changes()
@@ -149,6 +197,16 @@ class IndustrialCellSupervisor:
                 self.fault_active = True
                 self.fault_code = "MANUAL_FAULT"
             key = self.keyboard.getKey()
+
+    def _poll_plc(self) -> None:
+        if self.plc_io is None:
+            return
+        self.plc_poll_accumulator_ms += self.timestep_ms
+        if self.plc_poll_accumulator_ms < PLC_POLL_PERIOD_MS:
+            return
+        self.plc_poll_accumulator_ms = 0
+        run_cmd = self.plc_io.read_run_command()
+        self.plc_conveyor_run_cmd = bool(run_cmd)
 
     def _drive_belt(self) -> None:
         dt_s = self.timestep_ms / 1000.0
