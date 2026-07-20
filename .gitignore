@@ -8,7 +8,11 @@ __pycache__/
 *.pyo
 *.pyd
 venv/
+.venv/
 .env
+
+# Webots per-machine controller settings (points at a machine-specific Python)
+runtime.ini
 
 # Logs
 *.log

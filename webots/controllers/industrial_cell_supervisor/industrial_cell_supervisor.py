@@ -95,10 +95,13 @@ class PlcIoClient:
         # Imported here, not at module top, so demo mode still runs on a
         # machine without pymodbus installed.
         from pymodbus.client import ModbusTcpClient
+        from pymodbus.exceptions import ModbusException
 
+        self.modbus_exception = ModbusException
         self.host = host
-        self.client = ModbusTcpClient(host, timeout=0.2)
-        self.link_up = False
+        self.client = ModbusTcpClient(host, timeout=0.2, retries=1)
+        # None = unknown, so the very first read always reports UP or DOWN.
+        self.link_up: bool | None = None
 
     def read_run_command(self) -> bool | None:
         try:
@@ -108,7 +111,7 @@ class PlcIoClient:
             if response.isError():
                 self._report_link(False)
                 return None
-        except OSError:
+        except (OSError, self.modbus_exception):
             self._report_link(False)
             return None
         self._report_link(True)
