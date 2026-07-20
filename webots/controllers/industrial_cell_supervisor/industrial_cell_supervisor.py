@@ -26,6 +26,7 @@ PLC_HOST_ENV = "WEBOTS_PLC_HOST"
 PLC_HOST_DEFAULT = "192.168.1.181"
 PLC_POLL_PERIOD_MS = 100
 MB_REG_CONVEYOR_RUN_CMD = 32768  # TF6250 map: GVL.mb_Output_Registers[0]
+MB_REG_SENSOR_BASE = 33024  # TF6250 map: GVL.mb_Input_Registers[0..] (writable window)
 BELT_SPEED_MPS = 0.24
 PHOTOEYE_BLOCKED_THRESHOLD = 450.0
 OUTFEED_RECYCLE_DELAY_MS = 1500
@@ -116,6 +117,17 @@ class PlcIoClient:
             return None
         self._report_link(True)
         return response.registers[0] != 0
+
+    def write_sensors(self, values: list[int]) -> None:
+        try:
+            response = self.client.write_registers(MB_REG_SENSOR_BASE, values)
+            if response.isError():
+                self._report_link(False)
+                return
+        except (OSError, self.modbus_exception):
+            self._report_link(False)
+            return
+        self._report_link(True)
 
     def _report_link(self, up: bool) -> None:
         if up == self.link_up:
@@ -208,6 +220,13 @@ class IndustrialCellSupervisor:
         if self.plc_poll_accumulator_ms < PLC_POLL_PERIOD_MS:
             return
         self.plc_poll_accumulator_ms = 0
+        self.plc_io.write_sensors(
+            [
+                int(self._blocked(self.entry_sensor)),
+                int(self._blocked(self.station_sensor)),
+                int(self._blocked(self.exit_sensor)),
+            ]
+        )
         run_cmd = self.plc_io.read_run_command()
         self.plc_conveyor_run_cmd = bool(run_cmd)
 
