@@ -1,10 +1,38 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <GVL Name="GVL_ModbusIO" Id="{8d2477c8-d054-4dab-9281-0424af5e71b2}">
-    <Declaration><![CDATA[// Modbus I/O boundary - TF6250 maps holding register 32768+n to %MB(2n){attribute 'qualified_only'}
+    <Declaration><![CDATA[// Modbus I/O boundary.
+// TF6250 maps holding register 32768+n to %MB(2n).
+//
+// Sensor bits:
+//   mwSensors.0 = EntrySensor
+//   mwSensors.1 = StationSensor
+//   mwSensors.2 = ExitSensor
+//   mwSensors.3 = EStopHealthy
+//
+// Command bits:
+//   mwCommands.0 = StartRequest
+//   mwCommands.1 = StopRequest
+//   mwCommands.2 = ResetRequest
+//   mwCommands.3 = AutoMode
+//
+// Actuator bits:
+//   mwActuators.0 = ConveyorRun
+//   mwActuators.1 = PusherExtend
+//
+// Status bits:
+//   mwStatus.0 = Running
+//   mwStatus.1 = FaultActive
+//   mwStatus.2 = CycleActive
+{attribute 'qualified_only'}
 VAR_GLOBAL
-	mwSensors   AT %MB0 : WORD; //Webots write: bit0 = entry eye, bit1 = exit eye
-	mwActuators AT %MB2 : WORD; //PLC writes:   bit0 = conveyor run
+    mwSensors    AT %MB0  : WORD; // Webots/sim writes sensor bits
+    mwActuators  AT %MB2  : WORD; // PLC writes actuator bits
+    mwCommands   AT %MB4  : WORD; // HMI/gateway writes operator command bits
+    mwStatus     AT %MB6  : WORD; // PLC writes machine status bits
+    mwStateCode  AT %MB8  : WORD; // PLC writes current state code
+    mwFaultCode  AT %MB10 : WORD; // PLC writes active fault code
+    mwPartCount  AT %MB12 : WORD; // PLC writes completed part count
 END_VAR]]></Declaration>
   </GVL>
 </TcPlcObject>

@@ -3,23 +3,176 @@
   <POU Name="MAIN" Id="{055f7781-fa15-44cb-9bbe-9f4c327b774f}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM MAIN
 VAR
-	nCount : UDINT;
-	tBlink :TON;       // timer instance -it has its own memory
-	bLight : BOOL;     // the output that will blink
+    nCycleCount : UDINT;
+
+    // Latched PLC state. Codes are published to GVL_ModbusIO.mwStateCode.
+    uiState : UINT := 0;
+    uiNextState : UINT := 0;
+    uiFaultCode : UINT := 0;
+    uiPartCount : UINT := 0;
+
+    // Decoded simulated sensors.
+    bEntrySensor : BOOL;
+    bStationSensor : BOOL;
+    bExitSensor : BOOL;
+
+    // Decoded operator commands.
+    bStartRequest : BOOL;
+    bStopRequest : BOOL;
+    bResetRequest : BOOL;
+    bAutoMode : BOOL;
+
+    // PLC-owned outputs/status.
+    bConveyorRun : BOOL;
+    bPusherExtend : BOOL;
+    bRunning : BOOL;
+    bFaultActive : BOOL;
+    bCycleActive : BOOL;
+
+    // Timers for movement/action timeout checks.
+    tStateTimeout : TON;
+    tActionTimer : TON;
+    bStateTimeoutEnable : BOOL;
+    bActionTimerEnable : BOOL;
+    bStateChanged : BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[nCount := nCount + 1;
+      <ST><![CDATA[// State codes:
+//   0  = IDLE
+//   10 = WAIT_FOR_PART
+//   20 = CONVEYOR_RUNNING
+//   30 = PART_AT_STATION
+//   40 = PUSHER_EXTENDING
+//   50 = PUSHER_RETRACTING
+//   60 = COMPLETE
+//   900 = FAULT
+//
+// Fault codes:
+//   0 = none
+//   1 = stopped by operator
+//   2 = entry-to-station timeout
 
-// run the timer; when it expires, toggle the light and restart
-tBlink(IN := NOT tBlink.Q, PT := T#500MS);
+nCycleCount := nCycleCount + 1;
 
-IF tBlink.Q THEN
-	bLight := NOT bLight;
+// Webots currently writes sensor values into the Modbus input register array.
+// GVL_ModbusIO.mwSensors remains supported for the packed-bit IO boundary.
+bEntrySensor := GVL_ModbusIO.mwSensors.0 OR (GVL.mb_Input_Registers[0] <> WORD#0);
+bStationSensor := GVL_ModbusIO.mwSensors.1 OR (GVL.mb_Input_Registers[1] <> WORD#0);
+bExitSensor := GVL_ModbusIO.mwSensors.2 OR (GVL.mb_Input_Registers[2] <> WORD#0);
+
+bStartRequest := GVL_ModbusIO.mwCommands.0 OR GVL.mb_Output_Registers[1].0;
+bStopRequest := GVL_ModbusIO.mwCommands.1 OR GVL.mb_Output_Registers[1].1;
+bResetRequest := GVL_ModbusIO.mwCommands.2 OR GVL.mb_Output_Registers[1].2;
+bAutoMode := GVL_ModbusIO.mwCommands.3 OR GVL.mb_Output_Registers[1].3;
+
+// Safe defaults every scan. States below opt into motion.
+bConveyorRun := FALSE;
+bPusherExtend := FALSE;
+bStateTimeoutEnable := FALSE;
+bActionTimerEnable := FALSE;
+uiNextState := uiState;
+
+IF bResetRequest THEN
+    uiFaultCode := 0;
+    IF uiState = 900 THEN
+        uiNextState := 0;
+    END_IF
 END_IF
 
-GVL_ModbusIO.mwActuators.0 := bLight;
-GVL.mb_Output_Registers[0].0 := bLight;]]></ST>
+IF bStopRequest THEN
+    uiFaultCode := 1;
+    uiNextState := 900;
+END_IF
+
+CASE uiState OF
+    0: // IDLE
+        IF bStartRequest AND bAutoMode AND NOT bStopRequest THEN
+            uiFaultCode := 0;
+            uiNextState := 10;
+        END_IF
+
+    10: // WAIT_FOR_PART
+        IF bEntrySensor THEN
+            uiNextState := 20;
+        END_IF
+
+    20: // CONVEYOR_RUNNING
+        bConveyorRun := TRUE;
+        bStateTimeoutEnable := TRUE;
+        IF bStationSensor THEN
+            uiNextState := 30;
+        ELSIF tStateTimeout.Q THEN
+            uiFaultCode := 2;
+            uiNextState := 900;
+        END_IF
+
+    30: // PART_AT_STATION
+        bConveyorRun := FALSE;
+        uiNextState := 40;
+
+    40: // PUSHER_EXTENDING
+        bPusherExtend := TRUE;
+        bActionTimerEnable := TRUE;
+        IF tActionTimer.Q THEN
+            uiNextState := 50;
+        END_IF
+
+    50: // PUSHER_RETRACTING
+        bPusherExtend := FALSE;
+        bActionTimerEnable := TRUE;
+        IF tActionTimer.Q THEN
+            uiNextState := 60;
+        END_IF
+
+    60: // COMPLETE
+        IF uiPartCount < 65535 THEN
+            uiPartCount := uiPartCount + 1;
+        END_IF
+        uiNextState := 0;
+
+    900: // FAULT
+        bConveyorRun := FALSE;
+        bPusherExtend := FALSE;
+        IF bResetRequest THEN
+            uiFaultCode := 0;
+            uiNextState := 0;
+        END_IF
+
+ELSE
+    uiFaultCode := 99;
+    uiNextState := 900;
+END_CASE
+
+bStateChanged := uiNextState <> uiState;
+IF bStateChanged THEN
+    uiState := uiNextState;
+    tStateTimeout(IN := FALSE, PT := T#10S);
+    tActionTimer(IN := FALSE, PT := T#500MS);
+END_IF
+
+tStateTimeout(IN := bStateTimeoutEnable, PT := T#10S);
+tActionTimer(IN := bActionTimerEnable, PT := T#500MS);
+
+bFaultActive := uiState = 900;
+bRunning := (uiState <> 0) AND NOT bFaultActive;
+bCycleActive := bRunning;
+
+GVL_ModbusIO.mwActuators := WORD#0;
+GVL_ModbusIO.mwActuators.0 := bConveyorRun;
+GVL_ModbusIO.mwActuators.1 := bPusherExtend;
+
+GVL_ModbusIO.mwStatus := WORD#0;
+GVL_ModbusIO.mwStatus.0 := bRunning;
+GVL_ModbusIO.mwStatus.1 := bFaultActive;
+GVL_ModbusIO.mwStatus.2 := bCycleActive;
+
+GVL_ModbusIO.mwStateCode := UINT_TO_WORD(uiState);
+GVL_ModbusIO.mwFaultCode := UINT_TO_WORD(uiFaultCode);
+GVL_ModbusIO.mwPartCount := UINT_TO_WORD(uiPartCount);
+
+// Compatibility with the existing Webots Modbus polling path.
+GVL.mb_Output_Registers[0] := GVL_ModbusIO.mwActuators;]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>
