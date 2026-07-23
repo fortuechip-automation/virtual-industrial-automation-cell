@@ -26,12 +26,13 @@ PLC_HOST_ENV = "WEBOTS_PLC_HOST"
 PLC_HOST_DEFAULT = "192.168.1.181"
 PLC_POLL_PERIOD_MS = 100
 MB_REG_ACTUATORS = 32768  # TF6250 map: GVL.mb_Output_Registers[0] = actuator word
-MB_ACTUATOR_BIT_CONVEYOR_RUN = 0x0001  # bit 0 = ConveyorRun (bit 1 = PusherExtend)
+MB_ACTUATOR_BIT_CONVEYOR_RUN = 0x0001  # bit 0 = ConveyorRun
+MB_ACTUATOR_BIT_PUSHER_EXTEND = 0x0002  # bit 1 = PusherExtend
 MB_REG_SENSOR_BASE = 33024  # TF6250 map: GVL.mb_Input_Registers[0..] (writable window)
 BELT_SPEED_MPS = 0.24
 PHOTOEYE_BLOCKED_THRESHOLD = 450.0
 OUTFEED_RECYCLE_DELAY_MS = 1500
-CARTON_HOME = [1.38, 0.0, 0.34]
+CARTON_HOME = [1.05, 0.0, 0.34]  # staged on the entry photo-eye beam
 CARTON_HOME_ROTATION = [0.0, 0.0, 1.0, 0.0]
 
 
@@ -105,7 +106,7 @@ class PlcIoClient:
         # None = unknown, so the very first read always reports UP or DOWN.
         self.link_up: bool | None = None
 
-    def read_run_command(self) -> bool | None:
+    def read_actuators(self) -> int | None:
         try:
             response = self.client.read_holding_registers(
                 MB_REG_ACTUATORS, count=1
@@ -117,7 +118,7 @@ class PlcIoClient:
             self._report_link(False)
             return None
         self._report_link(True)
-        return (response.registers[0] & MB_ACTUATOR_BIT_CONVEYOR_RUN) != 0
+        return response.registers[0]
 
     def write_sensors(self, values: list[int]) -> None:
         try:
@@ -165,6 +166,7 @@ class IndustrialCellSupervisor:
 
         self.running = self.demo_mode
         self.plc_conveyor_run_cmd = False
+        self.pusher_extended_prev = False
         self.plc_conveyor_speed_cmd = BELT_SPEED_MPS
         self.fault_active = False
         self.fault_code = ""
@@ -228,8 +230,17 @@ class IndustrialCellSupervisor:
                 int(self._blocked(self.exit_sensor)),
             ]
         )
-        run_cmd = self.plc_io.read_run_command()
-        self.plc_conveyor_run_cmd = bool(run_cmd)
+        actuators = self.plc_io.read_actuators()
+        self.plc_conveyor_run_cmd = bool(
+            actuators is not None and actuators & MB_ACTUATOR_BIT_CONVEYOR_RUN
+        )
+        pusher_extended = bool(
+            actuators is not None and actuators & MB_ACTUATOR_BIT_PUSHER_EXTEND
+        )
+        if pusher_extended and not self.pusher_extended_prev:
+            self._home_carton()
+            print("[Webots] Pusher removed part; next carton staged at infeed", flush=True)
+        self.pusher_extended_prev = pusher_extended
 
     def _drive_belt(self) -> None:
         dt_s = self.timestep_ms / 1000.0

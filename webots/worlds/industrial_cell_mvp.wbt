@@ -214,7 +214,7 @@ DEF CELL_CONTROLLER Robot {
 }
 
 DEF CARTON Solid {
-  translation 1.38 0 0.34
+  translation 1.05 0 0.34
   contactMaterial "carton"
   children [
     Shape {
