@@ -25,7 +25,8 @@ PUBLISH_PERIOD_MS = 100
 PLC_HOST_ENV = "WEBOTS_PLC_HOST"
 PLC_HOST_DEFAULT = "192.168.1.181"
 PLC_POLL_PERIOD_MS = 100
-MB_REG_CONVEYOR_RUN_CMD = 32768  # TF6250 map: GVL.mb_Output_Registers[0]
+MB_REG_ACTUATORS = 32768  # TF6250 map: GVL.mb_Output_Registers[0] = actuator word
+MB_ACTUATOR_BIT_CONVEYOR_RUN = 0x0001  # bit 0 = ConveyorRun (bit 1 = PusherExtend)
 MB_REG_SENSOR_BASE = 33024  # TF6250 map: GVL.mb_Input_Registers[0..] (writable window)
 BELT_SPEED_MPS = 0.24
 PHOTOEYE_BLOCKED_THRESHOLD = 450.0
@@ -107,7 +108,7 @@ class PlcIoClient:
     def read_run_command(self) -> bool | None:
         try:
             response = self.client.read_holding_registers(
-                MB_REG_CONVEYOR_RUN_CMD, count=1
+                MB_REG_ACTUATORS, count=1
             )
             if response.isError():
                 self._report_link(False)
@@ -116,7 +117,7 @@ class PlcIoClient:
             self._report_link(False)
             return None
         self._report_link(True)
-        return response.registers[0] != 0
+        return (response.registers[0] & MB_ACTUATOR_BIT_CONVEYOR_RUN) != 0
 
     def write_sensors(self, values: list[int]) -> None:
         try:

@@ -2,7 +2,10 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <GVL Name="GVL_ModbusIO" Id="{8d2477c8-d054-4dab-9281-0424af5e71b2}">
     <Declaration><![CDATA[// Modbus I/O boundary.
-// TF6250 maps holding register 32768+n to %MB(2n).
+// NOTE on register maps (per TcModbusSrv.xml on twincat-eng):
+//   32768+ = symbol window -> GVL.mb_Output_Registers (PLC-owned, clients read/write)
+//   33024+ = symbol window -> GVL.mb_Input_Registers (Webots writes sensors)
+//   12288+ = IG window -> %MB memory (these variables) — route still UNPROVEN
 //
 // Sensor bits:
 //   mwSensors.0 = EntrySensor
