@@ -100,7 +100,7 @@ Five VMs on Proxmox, on a segmented lab network:
 
 ## Status
 
-**The closed loop is live.** TwinCAT drives the Webots cell over Modbus TCP, cycling a part roughly every 5.5 seconds.
+**The closed loop is live.** TwinCAT drives the Webots cell over Modbus TCP, cycling a part roughly every **5.0 seconds of simulated time** — about 5.2 s wall-clock at the measured 0.966x. Measured over 8 consecutive cycles by counting the supervisor's state publications, which are emitted on the simulation clock rather than the wall clock; the spread across those cycles was a single 112 ms sample, so the cycle is timer-dominated, not physics-dominated.
 
 - [x] Proxmox VM stack, segmented network, static reservations
 - [x] Webots physics conveyor with photo-eye sensors and carton dynamics
@@ -109,7 +109,7 @@ Five VMs on Proxmox, on a segmented lab network:
 - [x] Gateway OPC UA server publishing simulation state
 - [x] TwinCAT structured-text state machine with fault codes and state timeouts
 - [x] Modbus TCP I/O boundary — PLC drives the simulated cell end to end
-- [ ] E-stop interlock — mapped in the I/O boundary, not yet consumed by the logic
+- [ ] E-stop interlock and exit photo-eye — both mapped in the I/O boundary, neither consumed by the logic
 - [ ] Ignition operator commands routed through to the PLC
 - [ ] Historian logging connected to the live tag stream
 
@@ -123,7 +123,9 @@ That margin is thinner than it looks. The carton isn't teleported; it's dragged 
 
 On real hardware this coupling doesn't exist: the plant and the PLC share one clock. Against a simulator they don't, which raises a question I haven't settled — should a timeout guarding a simulated plant be driven by the simulation's own clock rather than the PLC's? Doing so would make the test honest, but would also mean the PLC code differs between simulation and deployment, which defeats part of the point.
 
-**`EStopHealthy` is mapped but not implemented.** It occupies `mwSensors.3` in the I/O boundary and is never read by the logic. The cell has fault handling and state timeouts; it does not have an E-stop interlock.
+**Two mapped inputs are never consumed.** `EStopHealthy` (`mwSensors.3`) and the exit photo-eye (`mwSensors.2`) are both assigned in `MAIN` and then read by no logic at all. The cell has fault handling and state timeouts; it does not have an E-stop interlock.
+
+The exit eye is dead at both ends: the pusher removes the part at the *station*, so in the current geometry the carton never reaches that beam. Across 8 measured cycles it did not assert once. The I/O boundary therefore documents a sensor the machine does not currently use — worth either wiring into the cycle or removing, rather than leaving as a false promise in the interface.
 
 **Operator Stop is recorded as a fault.** `bStopRequest` drives `uiState := 900` with `uiFaultCode := 1`. It works, and "stop aborts the cycle" is a defensible pattern, but recording a routine operator action with a fault code conflates two different things.
 
