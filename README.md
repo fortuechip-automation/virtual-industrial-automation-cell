@@ -104,11 +104,12 @@ Five VMs on Proxmox, on a segmented lab network:
 
 - [x] Proxmox VM stack, segmented network, static reservations
 - [x] Webots physics conveyor with photo-eye sensors and carton dynamics
-- [x] PostgreSQL historian installed, `industrial_cell` schema created
-- [x] Ignition installed, connected over OPC UA, Perspective dashboard live
-- [x] Gateway OPC UA server publishing simulation state
 - [x] TwinCAT structured-text state machine with fault codes and state timeouts
 - [x] Modbus TCP I/O boundary — PLC drives the simulated cell end to end
+- [x] PostgreSQL historian installed, `industrial_cell` schema created
+- [x] Ignition installed, `Industrial Automation Cell` project created, OPC UA client connection configured
+- [ ] Gateway OPC UA server started by systemd rather than by hand — see limitations
+- [ ] Ignition Perspective dashboard reading live cell state
 - [ ] E-stop interlock and exit photo-eye — both mapped in the I/O boundary, neither consumed by the logic
 - [ ] Ignition operator commands routed through to the PLC
 - [ ] Historian logging connected to the live tag stream
@@ -126,6 +127,12 @@ On real hardware this coupling doesn't exist: the plant and the PLC share one cl
 **Two mapped inputs are never consumed.** `EStopHealthy` (`mwSensors.3`) and the exit photo-eye (`mwSensors.2`) are both assigned in `MAIN` and then read by no logic at all. The cell has fault handling and state timeouts; it does not have an E-stop interlock.
 
 The exit eye is dead at both ends: the pusher removes the part at the *station*, so in the current geometry the carton never reaches that beam. Across 8 measured cycles it did not assert once. The I/O boundary therefore documents a sensor the machine does not currently use — worth either wiring into the cycle or removing, rather than leaving as a false promise in the interface.
+
+**The OT layers are built but not deployed.** The gateway's OPC UA server exists as code on the gateway VM, but it has no systemd unit — it is started by hand, so it is down whenever nobody has started it. Everything above the PLC depends on it: Ignition's `Gateway OPC UA` connection sits faulted, the Perspective project has no live cell state to read, and the historian's four tables stay empty.
+
+Verified 2026-08-31: port 4840 refuses connections, `systemctl` lists no gateway unit on that VM, and Ignition reports the connection `FAULTED` with uptime `N/A`. The historian itself is healthy — PostgreSQL is running with the `industrial_cell` schema in place, bound to localhost.
+
+Building something that runs and deploying something that keeps running are different jobs. Below the OPC UA boundary the first is done and the second is too — TwinCAT and Webots come back on their own. Above it, only the first.
 
 **Operator Stop is recorded as a fault.** `bStopRequest` drives `uiState := 900` with `uiFaultCode := 1`. It works, and "stop aborts the cycle" is a defensible pattern, but recording a routine operator action with a fault code conflates two different things.
 
