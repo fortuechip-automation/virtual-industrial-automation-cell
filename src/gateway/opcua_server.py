@@ -24,6 +24,7 @@ Tags added vs. test server:
 
 import asyncio
 import json
+import os
 import socket
 import threading
 import time
@@ -34,10 +35,14 @@ from asyncua import Server
 # Config                                                               #
 # ------------------------------------------------------------------ #
 
-WEBOTS_HOST = "192.168.1.182"
-WEBOTS_PORT = 9000
-RECONNECT_DELAY = 5  # seconds between reconnect attempts
-OPC_ENDPOINT = "opc.tcp://0.0.0.0:4840/industrial-cell/server/"
+# Each setting can be overridden by an environment variable of the same
+# name; the defaults below match the lab layout.
+WEBOTS_HOST = os.environ.get("WEBOTS_HOST", "192.168.1.182")
+WEBOTS_PORT = int(os.environ.get("WEBOTS_PORT", "9000"))
+RECONNECT_DELAY = int(os.environ.get("RECONNECT_DELAY", "5"))  # seconds between reconnect attempts
+OPC_ENDPOINT = os.environ.get(
+    "OPC_ENDPOINT", "opc.tcp://0.0.0.0:4840/industrial-cell/server/"
+)
 NAMESPACE_URI = "http://industrial-cell.local/opcua"
 
 
