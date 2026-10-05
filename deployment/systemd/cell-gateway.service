@@ -1,0 +1,16 @@
+[Unit]
+Description=Industrial cell OPC UA gateway (Webots state -> OPC UA)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=fox
+WorkingDirectory=/home/fox/virtual-industrial-automation-cell
+EnvironmentFile=/etc/cell-gateway.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/fox/virtual-industrial-automation-cell/.venv/bin/python src/gateway/opcua_server.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
