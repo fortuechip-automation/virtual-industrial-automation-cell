@@ -108,7 +108,7 @@ Five VMs on Proxmox, on a segmented lab network:
 - [x] Modbus TCP I/O boundary — PLC drives the simulated cell end to end
 - [x] PostgreSQL historian installed, `industrial_cell` schema created
 - [x] Ignition installed, `Industrial Automation Cell` project created, OPC UA client connection configured
-- [ ] Gateway OPC UA server started by systemd rather than by hand — see limitations
+- [x] Gateway OPC UA server run by systemd (`deployment/systemd/cell-gateway.service`), Ignition's OPC UA connection healthy
 - [ ] Ignition Perspective dashboard reading live cell state
 - [ ] E-stop interlock and exit photo-eye — both mapped in the I/O boundary, neither consumed by the logic
 - [ ] Ignition operator commands routed through to the PLC
@@ -128,9 +128,9 @@ On real hardware this coupling doesn't exist: the plant and the PLC share one cl
 
 The exit eye is dead at both ends: the pusher removes the part at the *station*, so in the current geometry the carton never reaches that beam. Across 8 measured cycles it did not assert once. The I/O boundary therefore documents a sensor the machine does not currently use — worth either wiring into the cycle or removing, rather than leaving as a false promise in the interface.
 
-**The OT layers are built but not deployed.** The gateway's OPC UA server exists as code on the gateway VM, but it has no systemd unit — it is started by hand, so it is down whenever nobody has started it. Everything above the PLC depends on it: Ignition's `Gateway OPC UA` connection sits faulted, the Perspective project has no live cell state to read, and the historian's four tables stay empty.
+**The gateway is deployed; the layers above it are connected but not yet used.** The gateway's OPC UA server runs as a systemd unit (`cell-gateway.service`, `Restart=always`, settings in `/etc/cell-gateway.env`), so it no longer depends on somebody starting it by hand. Ignition's `Gateway OPC UA` connection is healthy, but the Perspective project does not yet read the cell's tags and the historian's four tables are still empty.
 
-Verified 2026-08-31: port 4840 refuses connections, `systemctl` lists no gateway unit on that VM, and Ignition reports the connection `FAULTED` with uptime `N/A`. The historian itself is healthy — PostgreSQL is running with the `industrial_cell` schema in place, bound to localhost.
+Verified 2026-10-05: the unit is `active (running)` and enabled, port 4840 accepts connections from another machine, an OPC UA client reads the eight `Cell_01` tags (`MachineState` reports `DISCONNECTED` while Webots is stopped, by design), Ignition reports the connection `CONNECTED`, and after a reboot of the gateway VM the unit came back unaided. On that VM the OPC UA port opens roughly two minutes after power-on, because the service competes with first-boot housekeeping (`snapd`), and Ignition shows the connection faulted for that window. Not yet verified: live values end to end with Webots running. The historian itself is healthy — PostgreSQL is running with the `industrial_cell` schema in place, bound to localhost.
 
 Building something that runs and deploying something that keeps running are different jobs. Below the OPC UA boundary the first is done and the second is too — TwinCAT and Webots come back on their own. Above it, only the first.
 
