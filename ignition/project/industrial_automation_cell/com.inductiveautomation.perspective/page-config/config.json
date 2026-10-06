@@ -1,0 +1,14 @@
+{
+  "pages": {
+    "/": {
+      "title": "",
+      "viewPath": "MainPage"
+    },
+    "/MainPage": {
+      "viewPath": "MainPage"
+    }
+  },
+  "sharedDocks": {
+    "cornerPriority": "top-bottom"
+  }
+}

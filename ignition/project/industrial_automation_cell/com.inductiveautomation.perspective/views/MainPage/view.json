@@ -1,0 +1,683 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 731,
+      "width": 392
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "lblMachineState"
+        },
+        "position": {
+          "height": 45,
+          "rotate": {
+            "anchor": "50% 0%"
+          },
+          "width": 88,
+          "x": 226.5,
+          "y": 164
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[default]Cell_01/MachineState"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "lblPartCount"
+        },
+        "position": {
+          "height": 36,
+          "rotate": {
+            "anchor": "50% 75%"
+          },
+          "width": 114,
+          "x": 82,
+          "y": 247.5
+        },
+        "props": {
+          "text": "Part Count :",
+          "textStyle": {
+            "fontSize": 14,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "lblConveyorSpeed"
+        },
+        "position": {
+          "height": 39,
+          "rotate": {
+            "anchor": "25% 25%"
+          },
+          "width": 134,
+          "x": 84,
+          "y": 358
+        },
+        "props": {
+          "text": "Conveyor Speed",
+          "textStyle": {
+            "fontSize": 14,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 39,
+          "width": 90,
+          "x": 218,
+          "y": 358
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[default]Cell_01/ConveyorSpeed"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "fontSize": 14,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 32,
+          "rotate": {
+            "anchor": "25% 100%"
+          },
+          "width": 50,
+          "x": 254.5,
+          "y": 248
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[default]Cell_01/PartCount"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "fontSize": 14
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_1"
+        },
+        "position": {
+          "height": 33,
+          "rotate": {
+            "anchor": "-50% -937%"
+          },
+          "width": 142,
+          "x": 84,
+          "y": 170
+        },
+        "props": {
+          "text": "Machine State :",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_2"
+        },
+        "position": {
+          "height": 40,
+          "rotate": {
+            "anchor": "-102% -850%"
+          },
+          "width": 141,
+          "x": 90,
+          "y": 396.5
+        },
+        "props": {
+          "text": "Conveyor Running :",
+          "textStyle": {
+            "fontSize": 14,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_3"
+        },
+        "position": {
+          "height": 38,
+          "rotate": {
+            "anchor": "50% 0%"
+          },
+          "width": 92,
+          "x": 233.5,
+          "y": 397
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[default]Cell_01/ConveyorRunning"
+              },
+              "transforms": [
+                {
+                  "fallback": null,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": "Running"
+                    },
+                    {
+                      "input": false,
+                      "output": "Stopped"
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "fontSize": 14,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_4"
+        },
+        "position": {
+          "height": 32,
+          "rotate": {
+            "anchor": "75% 50%"
+          },
+          "width": 93,
+          "x": 108,
+          "y": 327
+        },
+        "props": {
+          "text": "Conveyor",
+          "textStyle": {
+            "fontWeight": "bold"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_5"
+        },
+        "position": {
+          "height": 32,
+          "rotate": {
+            "anchor": "-21% 50%"
+          },
+          "width": 94,
+          "x": 96,
+          "y": 215.5
+        },
+        "props": {
+          "text": "Production",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_6"
+        },
+        "position": {
+          "height": 32,
+          "rotate": {
+            "anchor": "-628% 256%"
+          },
+          "width": 84,
+          "x": 108,
+          "y": 470
+        },
+        "props": {
+          "text": "Sensors",
+          "textStyle": {
+            "fontWeight": "bold"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_7"
+        },
+        "position": {
+          "height": 32,
+          "width": 50,
+          "x": 105,
+          "y": 599
+        },
+        "props": {
+          "text": "Faults",
+          "textStyle": {
+            "fontSize": 16,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_8"
+        },
+        "position": {
+          "height": 34,
+          "width": 72,
+          "x": 190.5,
+          "y": 631
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[default]Cell_01/FaultActive"
+              },
+              "transforms": [
+                {
+                  "fallback": null,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": "Fault"
+                    },
+                    {
+                      "input": false,
+                      "output": "Normal"
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "fontSize": 14,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_9"
+        },
+        "position": {
+          "height": 32,
+          "width": 103,
+          "x": 99.5,
+          "y": 502
+        },
+        "props": {
+          "text": "Entry Sensor :",
+          "textStyle": {
+            "fontSize": 14,
+            "fontWeight": "bold"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_10"
+        },
+        "position": {
+          "height": 32,
+          "width": 103,
+          "x": 92.5,
+          "y": 631
+        },
+        "props": {
+          "text": "Fault Active :",
+          "textStyle": {
+            "fontSize": 14,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_11"
+        },
+        "position": {
+          "height": 49,
+          "rotate": {
+            "anchor": "75% 75%"
+          },
+          "width": 118,
+          "x": 100,
+          "y": 555
+        },
+        "props": {
+          "text": "Exit Sensor :",
+          "textStyle": {
+            "fontSize": 14,
+            "fontWeight": "bold"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_12"
+        },
+        "position": {
+          "height": 32,
+          "rotate": {
+            "anchor": "0% 50%"
+          },
+          "width": 88,
+          "x": 182.5,
+          "y": 502
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[default]Cell_01/EntrySensor"
+              },
+              "transforms": [
+                {
+                  "fallback": null,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": "Detected"
+                    },
+                    {
+                      "input": false,
+                      "output": "Clear"
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "fontSize": 14,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_13"
+        },
+        "position": {
+          "height": 39,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 91,
+          "x": 179,
+          "y": 560
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[default]Cell_01/ExitSensor"
+              },
+              "transforms": [
+                {
+                  "fallback": 0,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": "Detected"
+                    },
+                    {
+                      "input": false,
+                      "output": "Clear"
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "fontSize": 14,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_14"
+        },
+        "position": {
+          "height": 45,
+          "width": 74,
+          "x": 168,
+          "y": 99
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "publishInitial": false,
+                "tagPath": "[default]Cell_01/PlcState"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_15"
+        },
+        "position": {
+          "height": 48,
+          "width": 58,
+          "x": 173,
+          "y": 647.5
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "publishInitial": false,
+                "tagPath": "[default]Cell_01/FaultText"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_16"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "-16% 113%"
+          },
+          "width": 38,
+          "x": 218,
+          "y": 534
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[default]Cell_01/StationSensor"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_17"
+        },
+        "position": {
+          "height": 32,
+          "width": 118,
+          "x": 100,
+          "y": 534
+        },
+        "props": {
+          "text": "Station Sensor :",
+          "textStyle": {
+            "fontSize": 14,
+            "fontWeight": "bold"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_18"
+        },
+        "position": {
+          "height": 32,
+          "width": 50,
+          "x": 101,
+          "y": 656
+        },
+        "props": {
+          "text": "Fault:",
+          "textStyle": {
+            "fontSize": 14,
+            "fontWeight": "bold"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_19"
+        },
+        "position": {
+          "height": 35,
+          "width": 106,
+          "x": 76.5,
+          "y": 103.5
+        },
+        "props": {
+          "text": "PLC State:",
+          "textStyle": {
+            "fontSize": 16,
+            "fontWeight": "bold"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

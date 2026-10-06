@@ -1,0 +1,110 @@
+{
+  "name": "Cell_01",
+  "tagType": "Folder",
+  "tags": [
+    {
+      "dataType": "String",
+      "name": "MachineState",
+      "opcItemPath": "nsu\u003dhttp://industrial-cell.local/opcua;i\u003d2",
+      "opcServer": "Gateway OPC UA",
+      "tagType": "AtomicTag",
+      "valueSource": "opc"
+    },
+    {
+      "dataType": "Boolean",
+      "name": "FaultActive",
+      "opcItemPath": "nsu\u003dhttp://industrial-cell.local/opcua;i\u003d9",
+      "opcServer": "Gateway OPC UA",
+      "tagType": "AtomicTag",
+      "valueSource": "opc"
+    },
+    {
+      "dataType": "String",
+      "name": "FaultText",
+      "opcItemPath": "nsu\u003dhttp://industrial-cell.local/opcua;i\u003d14",
+      "opcServer": "Gateway OPC UA",
+      "tagType": "AtomicTag",
+      "valueSource": "opc"
+    },
+    {
+      "dataType": "String",
+      "name": "PlcState",
+      "opcItemPath": "nsu\u003dhttp://industrial-cell.local/opcua;i\u003d11",
+      "opcServer": "Gateway OPC UA",
+      "tagType": "AtomicTag",
+      "valueSource": "opc"
+    },
+    {
+      "dataType": "Int8",
+      "name": "PartCount",
+      "opcItemPath": "nsu\u003dhttp://industrial-cell.local/opcua;i\u003d8",
+      "opcServer": "Gateway OPC UA",
+      "tagType": "AtomicTag",
+      "valueSource": "opc"
+    },
+    {
+      "dataType": "Boolean",
+      "name": "PlcConnected",
+      "opcItemPath": "nsu\u003dhttp://industrial-cell.local/opcua;i\u003d10",
+      "opcServer": "Gateway OPC UA",
+      "tagType": "AtomicTag",
+      "valueSource": "opc"
+    },
+    {
+      "dataType": "Int8",
+      "name": "PlcStateCode",
+      "opcItemPath": "nsu\u003dhttp://industrial-cell.local/opcua;i\u003d12",
+      "opcServer": "Gateway OPC UA",
+      "tagType": "AtomicTag",
+      "valueSource": "opc"
+    },
+    {
+      "dataType": "Boolean",
+      "name": "ConveyorRunning",
+      "opcItemPath": "nsu\u003dhttp://industrial-cell.local/opcua;i\u003d3",
+      "opcServer": "Gateway OPC UA",
+      "tagType": "AtomicTag",
+      "valueSource": "opc"
+    },
+    {
+      "dataType": "Float8",
+      "name": "ConveyorSpeed",
+      "opcItemPath": "nsu\u003dhttp://industrial-cell.local/opcua;i\u003d4",
+      "opcServer": "Gateway OPC UA",
+      "tagType": "AtomicTag",
+      "valueSource": "opc"
+    },
+    {
+      "dataType": "Boolean",
+      "name": "ExitSensor",
+      "opcItemPath": "nsu\u003dhttp://industrial-cell.local/opcua;i\u003d7",
+      "opcServer": "Gateway OPC UA",
+      "tagType": "AtomicTag",
+      "valueSource": "opc"
+    },
+    {
+      "dataType": "Boolean",
+      "name": "StationSensor",
+      "opcItemPath": "nsu\u003dhttp://industrial-cell.local/opcua;i\u003d6",
+      "opcServer": "Gateway OPC UA",
+      "tagType": "AtomicTag",
+      "valueSource": "opc"
+    },
+    {
+      "dataType": "Int8",
+      "name": "FaultCode",
+      "opcItemPath": "nsu\u003dhttp://industrial-cell.local/opcua;i\u003d13",
+      "opcServer": "Gateway OPC UA",
+      "tagType": "AtomicTag",
+      "valueSource": "opc"
+    },
+    {
+      "dataType": "Boolean",
+      "name": "EntrySensor",
+      "opcItemPath": "nsu\u003dhttp://industrial-cell.local/opcua;i\u003d5",
+      "opcServer": "Gateway OPC UA",
+      "tagType": "AtomicTag",
+      "valueSource": "opc"
+    }
+  ]
+}
