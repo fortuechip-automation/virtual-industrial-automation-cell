@@ -136,6 +136,8 @@ Building something that runs and deploying something that keeps running are diff
 
 **Operator Stop is recorded as a fault.** `bStopRequest` drives `uiState := 900` with `uiFaultCode := 1`. It works, and "stop aborts the cycle" is a defensible pattern, but recording a routine operator action with a fault code conflates two different things.
 
+**A stop mid-cycle strands the part.** Stop the cell while the carton is between the entry eye and the station, then reset and restart, and it sits in `WAIT_FOR_PART` indefinitely: the PLC will not run the belt until the entry eye sees a part, and the carton only returns to the entry when the pusher fires. Found 2026-10-06 during a fault drill from the dashboard; recovery was a simulation reset. A real cell would have a purge or homing step for exactly this.
+
 ## Repository layout
 
 ```
@@ -143,6 +145,7 @@ plc/ConveyorCell/     TwinCAT XAE solution — PLC source in ConveyorPLC/POUs/MA
 webots/               simulation world and supervisor controller
 src/gateway/          OPC UA server / protocol bridge
 src/database/         historian schema
+ignition/             Perspective project export and Cell_01 tag export
 docs/                 architecture, control-architecture, network layout, build log
 ```
 
